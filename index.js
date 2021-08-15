@@ -20,9 +20,15 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
+io.on('connection', (socket) => {// perform tasks when connection is established
+    console.log('a user connected');// log the console once connected
 
+    // log the chat message to the console
+    socket.on('chat message', (msg) => {
+        console.log('message:' + msg);
+    });
+
+    // log the console if the socket disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
