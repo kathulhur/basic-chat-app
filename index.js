@@ -23,10 +23,20 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {// perform tasks when connection is established
     console.log('a user connected');// log the console once connected
 
+    /*
     // log the chat message to the console
     socket.on('chat message', (msg) => {
         console.log('message:' + msg);
     });
+    */
+    
+    // send the message to everyone (including the sender)
+    io.on('connection', (socket) => {
+        socket.on('chat message', (msg) => {
+            console.log('message:' + msg);
+            io.emit('chat message', msg);
+        });
+    })
 
     // log the console if the socket disconnects
     socket.on('disconnect', () => {
@@ -37,6 +47,7 @@ io.on('connection', (socket) => {// perform tasks when connection is established
 
 
 
-server.listen(3000, () => {
+
+server.listen(3000, () => {// listen on port 3000
     console.log('listening on *:3000');
-})
+});
