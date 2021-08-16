@@ -40,7 +40,19 @@
 
         socket.on('connect', () => {
           alert('client connected!');
-        })
+        });
+
+        // give alert when new socket connects
+        socket.on('user connects', function(msg) {
+          alert("A new user has connected!");
+        });
+
+        socket.on('user disconnects', function(msg) {
+          alert("A user disconnects!");
+        });
+
+        
+
 
         socket.on('chat message', function(msg) {
           alert('chat message received');

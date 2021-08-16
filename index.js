@@ -23,6 +23,8 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {// perform tasks when connection is established
     console.log('a user connected');// log the console once connected
 
+    userConnectsMessage = "'A new user is connected!";
+    socket.broadcast.emit('user connects', userConnectsMessage);
     /*
     // log the chat message to the console
     socket.on('chat message', (msg) => {
@@ -41,7 +43,9 @@ io.on('connection', (socket) => {// perform tasks when connection is established
     // log the console if the socket disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
-        socket.removeAllListeners();
+        
+        userDisconnectsMessage = "A user diconnects.";
+        socket.broadcast.emit('user disconnects', userDisconnectsMessage);
     });
 });
 
