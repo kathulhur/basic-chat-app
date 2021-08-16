@@ -32,14 +32,14 @@
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           if(input.value) {
-            alert('chat message event emmited');
+            console.log('chat message event emmited');
             socket.emit('chat message', input.value);
             input.value = '';
           }
         });
 
         socket.on('connect', () => {
-          alert('client connected!');
+          console.log('client connected!');
         });
 
         // give alert when new socket connects
@@ -55,7 +55,7 @@
 
 
         socket.on('chat message', function(msg) {
-          alert('chat message received');
+          console.log('chat message received');
           var item = document.createElement('li');
           item.textContent = msg;
           messages.appendChild(item);
