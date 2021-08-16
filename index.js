@@ -31,16 +31,17 @@ io.on('connection', (socket) => {// perform tasks when connection is established
     */
     
     // send the message to everyone (including the sender)
-    io.on('connection', (socket) => {
-        socket.on('chat message', (msg) => {
-            console.log('message:' + msg);
-            io.emit('chat message', msg);
-        });
-    })
+
+    socket.on('chat message', (msg) => {
+        console.log('message:' + msg);
+        io.emit('chat message', msg);
+    });
+
 
     // log the console if the socket disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        socket.removeAllListeners();
     });
 });
 
