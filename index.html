@@ -38,8 +38,13 @@
           }
         });
 
+        
+
         socket.on('connect', () => {
-          console.log('client connected!');
+          // prompts the user for their username
+          let username = window.prompt("Enter your name: ");
+          // send the username to the server
+          socket.emit('add username', username);
         });
 
         // give alert when new socket connects

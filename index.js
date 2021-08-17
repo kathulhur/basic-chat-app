@@ -39,7 +39,19 @@ io.on('connection', (socket) => {// perform tasks when connection is established
         io.emit('chat message', msg);
     });
 
+    socket.on('add username', async (username) => {
+        socket.data.username = username;
 
+        const sockets = await io.fetchSockets();
+
+        console.log();
+        console.log("Sockets connected: ");
+        
+        for(let i = 0; i < sockets.length; ++i) {
+            console.log(`id: ${sockets[i].id} - username: ${sockets[i].data.username}`);
+        }
+    });
+    
     // log the console if the socket disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
