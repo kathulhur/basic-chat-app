@@ -39,17 +39,30 @@ io.on('connection', (socket) => {// perform tasks when connection is established
         io.emit('chat message', msg);
     });
 
+    // add the username to the socket and emit an event to update the list of connected sockets
     socket.on('add username', async (username) => {
-        socket.data.username = username;
+        socket.data.username = username;// set the socket's username
 
-        const sockets = await io.fetchSockets();
+        const sockets = await io.fetchSockets();// get all the connected sockets
 
+        // store all the needed information in an object array
         console.log();
         console.log("Sockets connected: ");
-        
+        let socketData = [];
         for(let i = 0; i < sockets.length; ++i) {
-            console.log(`id: ${sockets[i].id} - username: ${sockets[i].data.username}`);
+            let id = sockets[i].id;
+            let username = sockets[i].data.username;
+            console.log(`id: ${id} - username: ${username}`);
+            
+            let data = {
+                id: id,
+                username: username
+            }
+            socketData.push(data);
         }
+
+        // emit an event for updating the list of connected sockets (users)
+        io.emit('update user list', socketData);
     });
     
     // log the console if the socket disconnects

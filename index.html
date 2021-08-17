@@ -16,6 +16,7 @@
     </style>
   </head>
   <body>
+    <ul id="users"></ul>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
@@ -28,6 +29,7 @@
         var messages = document.getElementById('messages');
         var form = document.getElementById('form');
         var input = document.getElementById('input');
+        var users = document.getElementById('users');
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
@@ -49,14 +51,30 @@
 
         // give alert when new socket connects
         socket.on('user connects', function(msg) {
+
           alert("A new user has connected!");
+          
         });
+
+        // updates the user list
+        socket.on('update user list', (socketData) => {
+          // clear the user list
+          while(users.childNodes.length != 0) {
+            users.removeChild(users.childNodes[0]);
+          } 
+
+          // Update the list of users
+          for(let i = 0; i < socketData.length; ++i) {
+            let item = document.createElement('li');
+            item.textContent = socketData[i].username;
+            users.appendChild(item);
+          }
+        });
+
 
         socket.on('user disconnects', function(msg) {
           alert("A user disconnects!");
         });
-
-        
 
 
         socket.on('chat message', function(msg) {
