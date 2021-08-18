@@ -64,11 +64,28 @@ io.on('connection', (socket) => {// perform tasks when connection is established
         // emit an event for updating the list of connected sockets (users)
         io.emit('update user list', socketData);
     });
+
+
+    socket.on('user is typing', function (user) {
+        socket.broadcast.emit('user is typing', user);
+    });
+
+    socket.on('user stop typing', function (user) {
+        socket.broadcast.emit('user stop typing', user);
+    })
+    
+    socket.on('disconnecting', function() {
+        let user = {
+            id: socket.id,
+            username: socket.username
+        }
+
+        socket.broadcast.emit('user stop typing', user);
+    });
     
     // log the console if the socket disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
-        
         userDisconnectsMessage = "A user diconnects.";
         socket.broadcast.emit('user disconnects', userDisconnectsMessage);
     });

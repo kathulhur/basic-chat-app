@@ -30,8 +30,54 @@
             var form = document.getElementById('form');
             var input = document.getElementById('input');
             var users = document.getElementById('users');
-
+            
             form.addEventListener('submit', sendMessageHandler);
+
+            /*
+                *   #Feature: User is typing functionality
+            */
+            input.addEventListener('focusin', function (e) {
+                let user = {
+                    id: socket.id,
+                    username: socket.username
+                }
+                socket.emit('user is typing', user);
+            });
+
+
+            input.addEventListener('focusout', function (e) {
+                let user = {
+                    id: socket.id,
+                    username: socket.username
+                }
+                socket.emit('user stop typing', user);
+            });
+
+
+            socket.on('user is typing', function(user) {// add the user is typing message
+                let element = document.getElementById('typing');
+                if(!element) {
+                    let message = `${user.username} is typing ....`;
+                    var item = document.createElement('li');
+                    item.textContent = message;
+                    item.id = `${user.id}-typing`;
+                    messages.appendChild(item);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+
+            });
+
+            // TASK: Use the SOCKET ID for the element id so it would be unique
+            socket.on('user stop typing', function(user) {
+                let element = document.getElementById(`${user.id}-typing`);
+                if(element) {
+                    messages.removeChild(element);
+                }
+            })
+
+            /*
+                *   #End: User is typing functionality
+            */
 
             function sendMessageHandler(e) {
                 e.preventDefault();
@@ -47,13 +93,20 @@
                 
             }
             
+            /*
+                #FEATURE: USER IS TYPING FUNCTIONALITY
+            */
 
+            
+            
             socket.on('connect', () => {
                 // prompts the user for their username
                 let username = window.prompt("Enter your name: ");
                 // send the username to the server
+                socket.username = username;
                 socket.emit('add username', username);
             });
+
 
                 // give alert when new socket connects
             socket.on('user connects', function(msg) {
@@ -83,6 +136,7 @@
                 } 
             }
 
+            
 
             socket.on('user disconnects', function(msg) {
                 console.log("A user disconnects!");
@@ -99,7 +153,10 @@
                 item.textContent = message;
                 element.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
+
+                return item;
             }
+
         </script>
     </body>
 </html>
