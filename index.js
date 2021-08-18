@@ -20,6 +20,12 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+
+app.get('/:user', (req, res) => {
+    res.sendFile(__dirname + 'index.html');
+});
+
+
 io.on('connection', (socket) => {// perform tasks when connection is established
     console.log('a user connected');// log the console once connected
 
@@ -37,6 +43,10 @@ io.on('connection', (socket) => {// perform tasks when connection is established
     socket.on('chat message', (msg) => {
         console.log('message:' + msg);
         socket.broadcast.emit('chat message', msg);
+    });
+
+    socket.on('private message', (anotherSocketId, message) => {
+        socket.to(anotherSocketId).emit("private message", socket.id, message);
     });
 
     // add the username to the socket and emit an event to update the list of connected sockets

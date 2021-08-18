@@ -44,6 +44,10 @@
                 socket.emit('user is typing', user);
             });
 
+            socket.on("private message", (anotherSocketId, message) => {
+                appendMessage(messages, message);
+            });
+
 
             input.addEventListener('focusout', function (e) {
                 let user = {
@@ -81,8 +85,11 @@
 
             function sendMessageHandler(e) {
                 e.preventDefault();
-
-                if(input.value) {
+                if(input.value.indexOf(':') != -1) {
+                    let message = input.value.split(':');
+                    socket.emit('private message', message[0], message[1]);
+                    input.value = '';
+                } else if (input.value) {
                     console.log('chat message event emmited');
                     socket.emit('chat message', input.value);
                     appendMessage(messages, input.value); // append the message immediately after emiting the event
@@ -125,7 +132,7 @@
             function updateUsers(element, userList) {
                 for(let i = 0; i < userList.length; ++i) {
                     let item = document.createElement('li');
-                    item.textContent = userList[i].username;
+                    item.textContent = userList[i].username + "-" + userList[i].id;
                     element.appendChild(item);
                 }
             }
