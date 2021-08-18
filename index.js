@@ -36,7 +36,7 @@ io.on('connection', (socket) => {// perform tasks when connection is established
 
     socket.on('chat message', (msg) => {
         console.log('message:' + msg);
-        io.emit('chat message', msg);
+        socket.broadcast.emit('chat message', msg);
     });
 
     // add the username to the socket and emit an event to update the list of connected sockets

@@ -1,89 +1,105 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    <head>
+        <title>Socket.IO chat</title>
+        <style>
+        body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+        #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+        #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+        #input:focus { outline: none; }
+        #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
-    </style>
-  </head>
-  <body>
-    <ul id="users"></ul>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages > li { padding: 0.5rem 1rem; }
+        #messages > li:nth-child(odd) { background: #efefef; }
+        </style>
+    </head>
+    <body>
+        <ul id="users"></ul>
+        <ul id="messages"></ul>
+        <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+        </form>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-        
-        var messages = document.getElementById('messages');
-        var form = document.getElementById('form');
-        var input = document.getElementById('input');
-        var users = document.getElementById('users');
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            
+            var messages = document.getElementById('messages');
+            var form = document.getElementById('form');
+            var input = document.getElementById('input');
+            var users = document.getElementById('users');
 
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          if(input.value) {
-            console.log('chat message event emmited');
-            socket.emit('chat message', input.value);
-            input.value = '';
-          }
-        });
+            form.addEventListener('submit', sendMessageHandler);
 
-        
+            function sendMessageHandler(e) {
+                e.preventDefault();
 
-        socket.on('connect', () => {
-          // prompts the user for their username
-          let username = window.prompt("Enter your name: ");
-          // send the username to the server
-          socket.emit('add username', username);
-        });
+                if(input.value) {
+                    console.log('chat message event emmited');
+                    socket.emit('chat message', input.value);
+                    appendMessage(messages, input.value); // append the message immediately after emiting the event
+                    input.value = '';// clear the input
+                }
 
-        // give alert when new socket connects
-        socket.on('user connects', function(msg) {
+                // Append the message immediately to the sender's view
+                
+            }
+            
 
-          alert("A new user has connected!");
-          
-        });
+            socket.on('connect', () => {
+                // prompts the user for their username
+                let username = window.prompt("Enter your name: ");
+                // send the username to the server
+                socket.emit('add username', username);
+            });
 
-        // updates the user list
-        socket.on('update user list', (socketData) => {
-          // clear the user list
-          while(users.childNodes.length != 0) {
-            users.removeChild(users.childNodes[0]);
-          } 
+                // give alert when new socket connects
+            socket.on('user connects', function(msg) {
+                console.log("A new user has connected!");
+            });
 
-          // Update the list of users
-          for(let i = 0; i < socketData.length; ++i) {
-            let item = document.createElement('li');
-            item.textContent = socketData[i].username;
-            users.appendChild(item);
-          }
-        });
+            // updates the user list
+            socket.on('update user list', (socketData) => {
+                // clear the user list
+                removeChildren(users);
+
+                // Update the list of users
+                updateUsers(users, socketData);
+            });
+
+            function updateUsers(element, userList) {
+                for(let i = 0; i < userList.length; ++i) {
+                    let item = document.createElement('li');
+                    item.textContent = userList[i].username;
+                    element.appendChild(item);
+                }
+            }
+
+            function removeChildren(parent) {
+                while(parent.childNodes.length != 0) {
+                    users.removeChild(users.childNodes[0]);
+                } 
+            }
 
 
-        socket.on('user disconnects', function(msg) {
-          alert("A user disconnects!");
-        });
+            socket.on('user disconnects', function(msg) {
+                console.log("A user disconnects!");
+            });
 
 
-        socket.on('chat message', function(msg) {
-          console.log('chat message received');
-          var item = document.createElement('li');
-          item.textContent = msg;
-          messages.appendChild(item);
-          window.scrollTo(0, document.body.scrollHeight);
-        });
-    </script>
-  </body>
+            socket.on('chat message', function(message) {
+                console.log('chat message received');
+                appendMessage(messages, message);
+            });
+
+            function appendMessage(element, message) {
+                var item = document.createElement('li');
+                item.textContent = message;
+                element.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        </script>
+    </body>
 </html>
